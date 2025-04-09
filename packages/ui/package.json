@@ -5,11 +5,14 @@
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "exports": {
     "./styles.css": "./dist/index.css",
-    "./*": "./src/*.tsx"
+    "./components/*": "./src/components/*",
+    "./hooks/*": "./src/hooks/*",
+    "./lib/*": "./src/lib/*"
   },
   "license": "MIT",
   "scripts": {

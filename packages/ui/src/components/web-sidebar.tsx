@@ -23,17 +23,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+} from "@repo/ui/components/ui/sidebar";
+import { Button } from "@repo/ui/components/ui/button";
+import { cn } from "@repo/ui/lib/utils";
 import { useMemo } from "react";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@repo/ui/components/mode-toggle";
 import {
   DropdownMenuContent,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+} from "@repo/ui/components/ui/dropdown-menu";
 
 const items = [
   {
