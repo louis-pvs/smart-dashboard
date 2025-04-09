@@ -1,14 +1,23 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
-  "include": ["src"],
   "exclude": ["dist", "build", "node_modules"],
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    "../../node_modules/**/*.d.ts",
+    "./node_modules/**/*.d.ts"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./"],
       "@/components/*": ["./src/components/*"],
       "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-    }
+      "@/hooks/*": ["./src/hooks/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"]
   }
 }

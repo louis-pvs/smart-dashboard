@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "target": "ES2017",
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "allowJs": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "noEmit": true,
+      "esModuleInterop": true,
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "jsx": "preserve",
+      "incremental": true,
+      "plugins": [
+        {
+          "name": "next"
+        }
+      ],
+      "paths": {
+        "@repo/ui/*": ["./packages/ui/src/*"],
+        "@repo/eslint-config/*": ["./packages/eslint-config/*"],
+        "@repo/tailwind-config/*": ["./packages/tailwind-config/*"],
+        "@repo/typescript-config/*": ["./packages/typescript-config/*"],
+      }
+    },
+    "exclude": ["node_modules"]
+  }

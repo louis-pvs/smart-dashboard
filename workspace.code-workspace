@@ -1,0 +1,14 @@
+{
+  "folders": [
+    { "path": "." },
+    { "path": "./apps/web" },
+    { "path": "./apps/doc" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/eslint-config" },
+    { "path": "./packages/tailwind-config" },
+    { "path": "./packages/typescript-config" },
+  ],
+  "settings": {
+    "typescript.tsdk": "./node_modules/typescript/lib",
+  },
+}
