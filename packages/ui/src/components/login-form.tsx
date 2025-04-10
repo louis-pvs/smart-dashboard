@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { TerminalWindow } from "@phosphor-icons/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -11,6 +13,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@repo/ui/components/ui/form";
+import { LoginFormValues, loginSchema } from "@repo/ui/schemas/auth-schema";
+import { Checkbox } from "@repo/ui/components/ui/checkbox";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@repo/ui/components/ui/alert";
 
 type LoginFormProps = {
   handleSubmit: (email: string, password: string) => Promise<void>;
@@ -26,12 +44,17 @@ export default function LoginForm({
   LinkComp = (props) => <a {...props} />,
   ...props
 }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      stayLogin: true,
+    },
+  });
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await handleSubmit(email, password);
+  const onSubmit = async (data: LoginFormValues) => {
+    await handleSubmit(data.email, data.password);
   };
 
   return (
@@ -43,51 +66,92 @@ export default function LoginForm({
             Enter your credentials to access your dashboard
           </CardDescription>
         </CardHeader>
-        <form onSubmit={onSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="p-3 bg-red-100 text-red-600 rounded-md text-sm">
-                {error}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
+              <ErrorAlert error={error} />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="your.email@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="stayLogin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Keep me logged in</FormLabel>
+                        <FormDescription>
+                          Not recommended for public devices
+                        </FormDescription>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </Button>
+              <div className="text-sm text-center">
+                Don&apos;t have an account?{" "}
+                <LinkComp
+                  href="/signup"
+                  className="text-blue-600 hover:underline">
+                  Sign up
+                </LinkComp>
               </div>
-            )}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
-            </Button>
-            <div className="text-sm text-center">
-              Don&apos;t have an account?{" "}
-              <LinkComp href="/signup" className="text-blue-600 hover:underline">
-                Sign up
-              </LinkComp>
-            </div>
-          </CardFooter>
-        </form>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </div>
+  );
+}
+
+function ErrorAlert({ error }: { error: null | string }) {
+  if (!error) return null;
+  return (
+    <Alert>
+      <TerminalWindow className="h-4 w-4" />
+      <AlertTitle>Heads up!</AlertTitle>
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
   );
 }

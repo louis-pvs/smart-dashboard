@@ -16,6 +16,10 @@
       "./src/hooks/*.ts",
       "./src/hooks/*.tsx"
     ],
+    "./schemas/*": [
+      "./src/schemas/*.ts",
+      "./src/schemas/*.tsx"
+    ],
     "./lib": "./src/lib/index.ts",
     "./lib/*": [
       "./src/lib/*.ts",
@@ -48,6 +52,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@phosphor-icons/react": "^2.1.7",
+    "@radix-ui/react-checkbox": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.7",
     "@radix-ui/react-dropdown-menu": "^2.1.7",
     "@radix-ui/react-label": "^2.1.3",

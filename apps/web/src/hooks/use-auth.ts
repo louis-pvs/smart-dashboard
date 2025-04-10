@@ -1,20 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createPersistentClient, createSessionClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = createClient();
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, stayLogin: boolean = false) => {
     setLoading(true);
     setError(null);
 
     try {
+      // Use persistent session if user stay logged in as default behavior
+      const supabase = stayLogin ? createPersistentClient() : createSessionClient();
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -37,9 +39,11 @@ export function useAuth() {
     }
   };
 
+  // For logout, we can use either client since we're just signing out
   const logout = async () => {
     setLoading(true);
     try {
+      const supabase = createPersistentClient();
       await supabase.auth.signOut();
       router.push("/login");
       router.refresh();
