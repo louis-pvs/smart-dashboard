@@ -7,7 +7,7 @@ import {
   createHttpLink,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { createClient } from "@/lib/supabase/client";
+import { createPersistentClient } from "@/lib/supabase/client";
 import { ReactNode, useEffect, useState } from "react";
 
 export default function ApolloClientProvider({
@@ -19,7 +19,7 @@ export default function ApolloClientProvider({
 
   useEffect(() => {
     const getToken = async () => {
-      const supabase = createClient();
+      const supabase = createPersistentClient();
       const { data } = await supabase.auth.getSession();
       const accessToken = data.session?.access_token || null;
       setToken(accessToken);
