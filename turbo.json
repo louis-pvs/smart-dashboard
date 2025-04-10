@@ -17,7 +17,7 @@
       "dependsOn": ["supabase#reset"]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^build", "^test"]
     },
     "deploy": {
       "dependsOn": ["supabase#deploy"]
@@ -28,6 +28,9 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "web#build": {
+      "dependsOn": ["@repo/schema#build"]
     }
   }
 }
