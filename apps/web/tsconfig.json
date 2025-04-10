@@ -13,8 +13,10 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@repo/ui/*": ["../../packages/ui/src/*"],
-    }
+      "@/types/*": ["./types/*"],
+      "@repo/ui/*": ["../../packages/ui/src/*"]
+    },
+    "typeRoots": ["types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
