@@ -11,8 +11,10 @@
   "exports": {
     "./styles.css": "./dist/index.css",
     "./components/*": "./src/components/*",
-    "./hooks/*": "./src/hooks/*",
-    "./lib/*": "./src/lib/*"
+    "./components/ui/*": "./src/components/ui/*",
+    "./hooks/*": ["./src/hooks/*.ts", "./src/hooks/*.tsx"],
+    "./lib": "./src/lib/index.ts",
+    "./lib/*": ["./src/lib/*.ts", "./src/lib/*.tsx"]
   },
   "license": "MIT",
   "scripts": {
