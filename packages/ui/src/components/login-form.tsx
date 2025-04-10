@@ -22,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@repo/ui/components/ui/form";
-import { LoginFormValues, loginSchema } from "@repo/ui/schemas/auth-schema";
+import { LoginFormValues, loginSchema } from "@repo/schema";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   Alert,

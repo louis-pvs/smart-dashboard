@@ -1,11 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { FormState, loginSchema } from "@repo/ui/schemas/auth-schema";
+import { loginSchema } from "@repo/schema";
 import {
   createPersistentClient,
   createSessionClient,
 } from "@/lib/supabase/client";
+
+export type FormState = {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    password?: string[];
+    server?: string[];
+  };
+  message?: string;
+};
 
 export async function login(prevState: FormState, formData: FormData) {
   // Extract form data
