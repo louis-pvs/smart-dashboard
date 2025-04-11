@@ -1,14 +1,10 @@
 "use client";
 
 import {
-  HouseLine,
-  Tray,
-  Calendar,
-  MagnifyingGlass,
-  Gear,
   CaretLineRight,
   CaretUp,
   User,
+  IconProps,
 } from "@phosphor-icons/react";
 
 import {
@@ -16,7 +12,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -26,8 +21,8 @@ import {
 } from "@repo/ui/components/ui/sidebar";
 import { Button } from "@repo/ui/components/ui/button";
 import { cn } from "@repo/ui/lib";
-import { useMemo } from "react";
-import { ModeToggle } from "@repo/ui/components/mode-toggle";
+import React, { useCallback, useMemo } from "react";
+
 import {
   DropdownMenuContent,
   DropdownMenu,
@@ -35,49 +30,43 @@ import {
   DropdownMenuItem,
 } from "@repo/ui/components/ui/dropdown-menu";
 
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: HouseLine,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Tray,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: MagnifyingGlass,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Gear,
-  },
-];
 
-export default function WebSidebar() {
+export interface SidebarItem {
+  title: string;
+  url: string;
+  icon: React.ForwardRefExoticComponent<
+    IconProps & React.RefAttributes<SVGSVGElement>
+  >;
+  isActive?: boolean;
+}
+
+export interface WebSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  sidebarItems: SidebarItem[];
+  LinkComp?: React.ElementType;
+  currentPath?: string;
+}
+
+export default function WebSidebar({
+  sidebarItems,
+  LinkComp = (props) => <a {...props} />,
+  currentPath = "/",
+  ...props
+}: WebSidebarProps) {
+  const isActive = useCallback((url: string) => currentPath === url, [currentPath]);
   return (
-    <Sidebar>
+    <Sidebar {...props}>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <LinkComp href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </LinkComp>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -85,9 +74,9 @@ export default function WebSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupAction title="Toggle Mode" asChild>
-            <ModeToggle />
-          </SidebarGroupAction>
+          <Button asChild>
+            <LinkComp href="/login">Login</LinkComp>
+          </Button>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>

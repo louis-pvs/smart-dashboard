@@ -13,6 +13,7 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@/ui/*": ["./src/app/ui/*"],
       "@/types/*": ["./types/*"],
       "@repo/ui/*": ["../../packages/ui/src/*"]
     },

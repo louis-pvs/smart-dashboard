@@ -29,6 +29,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@repo/ui/components/ui/alert";
+import { cn } from "@repo/ui/lib";
 
 type LoginFormProps = {
   formAction: (formData: FormData) => void;
@@ -66,7 +67,7 @@ export default function LoginForm({
   };
 
   return (
-    <Card className={`w-full max-w-md ${className}`} {...props}>
+    <Card className={cn(`w-full max-w-md`, className)} {...props}>
       <CardHeader>
         <CardTitle>Login</CardTitle>
         <CardDescription>
@@ -86,6 +87,7 @@ export default function LoginForm({
                   <FormControl>
                     <Input
                       type="email"
+                      autoComplete="username"
                       placeholder="your.email@example.com"
                       {...field}
                     />
@@ -136,7 +138,7 @@ export default function LoginForm({
               Don&apos;t have an account?{" "}
               <LinkComp
                 href="/signup"
-                className="text-blue-600 hover:underline">
+                className="text-primary hover:underline font-bold">
                 Sign up
               </LinkComp>
             </div>
