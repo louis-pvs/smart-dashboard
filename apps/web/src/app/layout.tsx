@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { SidebarProvider } from "@repo/ui/components/ui/sidebar";
 import localFont from "next/font/local";
-import "./globals.css";
-import Sidebar, { SidebarTrigger } from "@repo/ui/components/web-sidebar";
-import "@repo/ui/styles.css";
+import Link from "next/link";
+import { SidebarProvider } from "@repo/ui/components/ui/sidebar";
+import Sidebar from "@/ui/sidebar";
+import Header from "@repo/ui/components/header";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import "@repo/ui/styles.css";
+import "./globals.css";
+import { SidebarTrigger } from "@repo/ui/components/sidebar";
 
 const DM_Sans = localFont({
   src: [
@@ -48,16 +51,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${DM_Sans.className} antialiased`}>
+      <body className={`${DM_Sans.className} bg-secondary antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
           <SidebarProvider>
-            <Sidebar />
-            <SidebarTrigger />
-            {children}
+            <Sidebar collapsible="offcanvas" />
+            <main className="min-h-screen relative flex w-full flex-1 flex-col md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow md:bg-card text-card-foreground rounded-4xl p-4">
+              <Header>
+                <SidebarTrigger />
+                <div className="flex-1" />
+              </Header>
+              {children}
+            </main>
           </SidebarProvider>
         </ThemeProvider>
       </body>

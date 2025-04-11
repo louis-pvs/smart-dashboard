@@ -13,10 +13,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./"],
-      "@/components/*": ["./src/components/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./src/hooks/*"]
+      "@repo/ui/*": ["./src/*"],
+      "@repo/ui/components/*": ["./src/components/*"],
+      "@repo/ui/components/ui/*": ["./src/components/ui/*"],
+      "@repo/ui/lib/*": ["./src/lib/*"],
+      "@repo/ui/hooks/*": ["./src/hooks/*"]
     },
     "typeRoots": ["./node_modules/@types", "../../node_modules/@types"]
   }
