@@ -12,7 +12,7 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="flex flex-1 items-center justify-center flex-col gap-4">
+    <div className="flex flex-1 items-center justify-center flex-col gap-4 bg-card rounded-4xl">
       <LoginForm
         formAction={formAction}
         LinkComp={Link}

@@ -7,6 +7,7 @@ import Header from "@repo/ui/components/header";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import "@repo/ui/styles.css";
 import "./globals.css";
+import { SidebarTrigger } from "@repo/ui/components/sidebar";
 
 const DM_Sans = localFont({
   src: [
@@ -57,9 +58,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <SidebarProvider>
-            <Sidebar />
-            <main className="min-h-screen relative flex w-full flex-1 flex-col md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow bg-card text-card-foreground rounded-4xl p-4">
-              <Header />
+            <Sidebar collapsible="offcanvas" />
+            <main className="min-h-screen relative flex w-full flex-1 flex-col md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow md:bg-card text-card-foreground rounded-4xl p-4">
+              <Header>
+                <SidebarTrigger />
+                <div className="flex-1" />
+              </Header>
               {children}
             </main>
           </SidebarProvider>

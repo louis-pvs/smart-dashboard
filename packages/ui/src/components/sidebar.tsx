@@ -1,10 +1,11 @@
 "use client";
 
 import {
-  CaretLineRight,
   CaretUp,
   User,
   IconProps,
+  SignIn,
+  SidebarSimple,
 } from "@phosphor-icons/react";
 
 import {
@@ -17,11 +18,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarProps,
   useSidebar,
 } from "@repo/ui/components/ui/sidebar";
 import { Button } from "@repo/ui/components/ui/button";
-import { cn } from "@repo/ui/lib";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 
 import {
   DropdownMenuContent,
@@ -29,7 +30,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@repo/ui/components/ui/dropdown-menu";
-
 
 export interface SidebarItem {
   title: string;
@@ -40,19 +40,22 @@ export interface SidebarItem {
   isActive?: boolean;
 }
 
-export interface WebSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  sidebarItems: SidebarItem[];
+export interface WebSidebarProps extends SidebarProps {
+  sidebarItems?: SidebarItem[];
   LinkComp?: React.ElementType;
   currentPath?: string;
 }
 
 export default function WebSidebar({
-  sidebarItems,
+  sidebarItems = [],
   LinkComp = (props) => <a {...props} />,
   currentPath = "/",
   ...props
 }: WebSidebarProps) {
-  const isActive = useCallback((url: string) => currentPath === url, [currentPath]);
+  const isActive = useCallback(
+    (url: string) => currentPath === url,
+    [currentPath]
+  );
   return (
     <Sidebar {...props}>
       <SidebarContent>
@@ -75,7 +78,9 @@ export default function WebSidebar({
         </SidebarGroup>
         <SidebarGroup>
           <Button asChild>
-            <LinkComp href="/login">Login</LinkComp>
+            <LinkComp href="/login">
+              <SignIn /> Login
+            </LinkComp>
           </Button>
         </SidebarGroup>
       </SidebarContent>
@@ -110,27 +115,22 @@ export default function WebSidebar({
   );
 }
 
-function SidebarTrigger({
-  onClick,
-  ...props
-}: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar, state } = useSidebar();
-  const isOpen = useMemo(() => state === "expanded", [state]);
 
+function SidebarTrigger({ onClick, ...props }: React.ComponentProps<typeof Button>) {
+  const { toggleSidebar } = useSidebar();
   return (
     <Button
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      variant="ghost"
+      variant="secondary"
       size="icon"
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}>
-      <CaretLineRight
+      <SidebarSimple
         weight="bold"
-        className={cn({ "rotate-180": isOpen }, "transition-transform")}
       />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>

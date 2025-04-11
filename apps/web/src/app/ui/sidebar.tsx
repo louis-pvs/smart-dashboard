@@ -7,7 +7,9 @@ import {
   MagnifyingGlass,
   Gear,
 } from "@phosphor-icons/react";
-import UISidebar from "@repo/ui/components/sidebar";
+import UISidebar, {
+  WebSidebarProps,
+} from "@repo/ui/components/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -38,9 +40,18 @@ const items = [
     icon: Gear,
   },
 ];
-export default function WebSidebar() {
+
+export default function WebSidebar({
+  sidebarItems = items,
+  ...props
+}: WebSidebarProps) {
   const pathname = usePathname();
   return (
-    <UISidebar currentPath={pathname} LinkComp={Link} sidebarItems={items} />
+    <UISidebar
+      currentPath={pathname}
+      LinkComp={Link}
+      sidebarItems={sidebarItems}
+      {...props}
+    />
   );
 }
