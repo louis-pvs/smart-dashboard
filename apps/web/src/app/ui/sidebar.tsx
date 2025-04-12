@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  HouseLine,
+  SquaresFour,
   Tray,
   Calendar,
   MagnifyingGlass,
@@ -15,9 +15,9 @@ import { usePathname } from "next/navigation";
 
 const items = [
   {
-    title: "Home",
-    url: "/",
-    icon: HouseLine,
+    title: "Overview",
+    url: "/overview",
+    icon: SquaresFour,
   },
   {
     title: "Inbox",

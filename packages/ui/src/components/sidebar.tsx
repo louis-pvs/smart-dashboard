@@ -6,6 +6,7 @@ import {
   IconProps,
   SignIn,
   SidebarSimple,
+  Cube,
 } from "@phosphor-icons/react";
 
 import {
@@ -15,13 +16,14 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProps,
   useSidebar,
-} from "@repo/ui/components/ui/sidebar";
-import { Button } from "@repo/ui/components/ui/button";
+} from "@repo/ui/components/base/sidebar";
+import { Button } from "@repo/ui/components/base/button";
 import React, { useCallback } from "react";
 
 import {
@@ -29,7 +31,8 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@repo/ui/components/ui/dropdown-menu";
+} from "@repo/ui/components/base/dropdown-menu";
+import { Logo } from "@repo/ui/components/logo";
 
 export interface SidebarItem {
   title: string;
@@ -58,6 +61,9 @@ export default function WebSidebar({
   );
   return (
     <Sidebar {...props}>
+      <SidebarHeader>
+        <Logo LinkComp={LinkComp} />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -67,7 +73,9 @@ export default function WebSidebar({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <LinkComp href={item.url}>
-                      <item.icon />
+                      <item.icon
+                        weight={isActive(item.url) ? "fill" : "duotone"}
+                      />
                       <span>{item.title}</span>
                     </LinkComp>
                   </SidebarMenuButton>
@@ -115,23 +123,23 @@ export default function WebSidebar({
   );
 }
 
-
-function SidebarTrigger({ onClick, ...props }: React.ComponentProps<typeof Button>) {
+function SidebarTrigger({
+  onClick,
+  ...props
+}: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar();
   return (
     <Button
+      variant="ghost"
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      variant="secondary"
       size="icon"
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}>
-      <SidebarSimple
-        weight="bold"
-      />
+      <SidebarSimple weight="bold" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

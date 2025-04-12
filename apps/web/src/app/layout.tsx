@@ -1,43 +1,43 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Link from "next/link";
-import { SidebarProvider } from "@repo/ui/components/ui/sidebar";
-import Sidebar from "@/ui/sidebar";
-import Header from "@repo/ui/components/header";
+import { SidebarProvider } from "@repo/ui/components/base/sidebar";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import "@repo/ui/styles.css";
-import "./globals.css";
-import { SidebarTrigger } from "@repo/ui/components/sidebar";
+import { ModeToggle } from "@repo/ui/components/mode-toggle";
 
-const DM_Sans = localFont({
+const urbanist = localFont({
   src: [
     {
-      path: "../assets/fonts/dm-sans-v14-latin-regular.woff2",
-      weight: "400",
-      style: "normal",
+      path: "../assets/fonts/Urbanist-VariableFont_wght.ttf",
+      style: "regular",
     },
     {
-      path: "../assets/fonts/dm-sans-v14-latin-700.woff2",
-      weight: "700",
-      style: "normal",
+      path: "../assets/fonts/Urbanist-Italic-VariableFont_wght.ttf",
+      style: "italic",
     },
   ],
-  weight: "regular",
-  preload: true,
-  style: "normal",
   display: "swap",
+  variable: "--font-urbanist",
+  preload: true,
+  fallback: ["system-ui", "Helvetica", "sans-serif"],
   adjustFontFallback: "Arial",
-  fallback: [
-    "-apple-system",
-    "blinkmacsystemfont",
-    "Segoe UI",
-    "roboto",
-    "oxygen-sans",
-    "ubuntu",
-    "cantarell",
-    "Helvetica Neue",
-    "sans-serif",
+});
+const inter = localFont({
+  src: [
+    {
+      path: "../assets/fonts/Inter-VariableFont_opsz,wght.ttf",
+      style: "regular",
+    },
+    {
+      path: "../assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf",
+      style: "italic",
+    },
   ],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+  fallback: ["Helvetica", "sans-serif"],
+  adjustFontFallback: "Arial",
 });
 export const metadata: Metadata = {
   title: "A.I Powered Dashboard",
@@ -51,22 +51,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${DM_Sans.className} bg-secondary antialiased`}>
+      <body className={`${urbanist.className} ${inter.className} antialiased min-h-screen overflow-x-hidden`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange>
-          <SidebarProvider>
-            <Sidebar collapsible="offcanvas" />
-            <main className="min-h-screen relative flex w-full flex-1 flex-col md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow md:bg-card text-card-foreground rounded-4xl p-4">
-              <Header>
-                <SidebarTrigger />
-                <div className="flex-1" />
-              </Header>
-              {children}
-            </main>
-          </SidebarProvider>
+          >
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -6,14 +6,14 @@
   "tailwind": {
     "config": "",
     "css": "src/styles.css",
-    "baseColor": "lime",
+    "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
     "components": "@repo/ui/components",
     "utils": "@repo/ui/lib",
-    "ui": "@repo/ui/components/ui",
+    "ui": "@repo/ui/components/base",
     "lib": "@repo/ui/lib",
     "hooks": "@repo/ui/hooks"
   },

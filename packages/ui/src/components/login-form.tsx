@@ -3,8 +3,8 @@
 import { TerminalWindow } from "@phosphor-icons/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button } from "@repo/ui/components/ui/button";
-import { Input } from "@repo/ui/components/ui/input";
+import { Button } from "@repo/ui/components/base/button";
+import { Input } from "@repo/ui/components/base/input";
 import {
   Card,
   CardContent,
@@ -12,7 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/ui/card";
+} from "@repo/ui/components/base/card";
 import {
   Form,
   FormControl,
@@ -21,15 +21,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@repo/ui/components/ui/form";
+} from "@repo/ui/components/base/form";
 import { LoginFormValues, loginSchema } from "@repo/schema";
-import { Checkbox } from "@repo/ui/components/ui/checkbox";
+import { Checkbox } from "@repo/ui/components/base/checkbox";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@repo/ui/components/ui/alert";
+} from "@repo/ui/components/base/alert";
 import { cn } from "@repo/ui/lib";
+import { Heading } from "@repo/ui/components/base/heading";
 
 type LoginFormProps = {
   formAction: (formData: FormData) => void;
@@ -67,9 +68,11 @@ export default function LoginForm({
   };
 
   return (
-    <Card className={cn(`w-full max-w-md`, className)} {...props}>
+    <Card className={cn(`w-full max-w-md border-none`, className)} {...props}>
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle>
+          <Heading>Login</Heading>
+        </CardTitle>
         <CardDescription>
           Enter your credentials to access your dashboard
         </CardDescription>
