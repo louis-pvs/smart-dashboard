@@ -1,6 +1,7 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
@@ -14,10 +15,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/ui/*": ["./src/app/ui/*"],
-      "@/types/*": ["./types/*"],
+      "@/types/*": ["@repo/types/*"],
       "@repo/ui/*": ["../../packages/ui/src/*"]
     },
-    "typeRoots": ["types"]
+    "typeRoots": ["@repo/types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
