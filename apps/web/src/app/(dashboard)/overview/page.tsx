@@ -1,4 +1,3 @@
-import { Button } from "@repo/ui/components/base/button";
 import { Heading } from "@repo/ui/components/base/heading";
 
 export default function Overview() {

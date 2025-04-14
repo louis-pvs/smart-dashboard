@@ -3,7 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { typeDefs } from "@repo/schema";
 import { resolvers } from "@/lib/graphql/resolver";
 import { createClient } from "@/lib/supabase/server";
-import { NextApiHandler } from "next";
+import { NextRequest } from "next/server";
 
 // Create Apollo Server instance
 const server = new ApolloServer({
@@ -11,7 +11,7 @@ const server = new ApolloServer({
   resolvers,
 });
 
-const handler: NextApiHandler = startServerAndCreateNextHandler(server, {
+const handler = startServerAndCreateNextHandler(server, {
   context: async (req) => {
     // Get Supabase client for the current request
     const supabase = await createClient();
@@ -29,5 +29,11 @@ const handler: NextApiHandler = startServerAndCreateNextHandler(server, {
   },
 });
 
-// Export the handler for Next.js API route
-export { handler as GET, handler as POST };
+// Export properly typed handlers for Next.js API route
+export async function GET(request: NextRequest) {
+  return handler(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handler(request);
+}
