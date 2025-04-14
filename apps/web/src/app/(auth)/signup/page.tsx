@@ -1,19 +1,19 @@
 "use client";
 
-import { LoginForm } from "@repo/ui/components/login-form";
+import { SignUpForm } from "@repo/ui/components/sign-up-form";
 import Link from "next/link";
 import { useActionState } from "react";
-import { login } from "@/actions/auth";
+import { signup } from "@/actions/auth";
 
-export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(login, {
-    errors: { server: [], email: [], password: [], stayLogin: [] },
+export default function SignupPage() {
+  const [state, formAction, isPending] = useActionState(signup, {
+    errors: { server: [], name: [], email: [], password: [], confirmPassword: [] },
     success: false,
   });
 
   return (
     <div className="flex flex-1 items-center justify-center flex-col gap-4 rounded-4xl">
-      <LoginForm
+      <SignUpForm
         formAction={formAction}
         LinkComp={Link}
         loading={isPending}

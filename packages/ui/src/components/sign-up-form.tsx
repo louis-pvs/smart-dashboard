@@ -1,5 +1,6 @@
 "use client";
 
+import { TerminalWindow } from "@phosphor-icons/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@repo/ui/components/base/button";
@@ -21,44 +22,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@repo/ui/components/base/form";
-import { LoginFormValues, loginSchema } from "@repo/schema";
+import { SignupFormValues, signupSchema } from "@repo/schema";
 import { Checkbox } from "@repo/ui/components/base/checkbox";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@repo/ui/components/base/alert";
 import { cn } from "@repo/ui/lib";
 import { Heading } from "@repo/ui/components/base/heading";
 import ErrorAlert from "@repo/ui/components/error-alert";
 
-type LoginFormProps = {
+type SignUpFormProps = {
   formAction: (formData: FormData) => void;
   error: string | null;
   loading: boolean;
   LinkComp?: React.ElementType;
 } & React.ComponentProps<"div">;
 
-export default function LoginForm({
+export default function SignUpForm({
   formAction,
   error,
   loading,
   LinkComp = (props) => <a {...props} />,
   className,
   ...props
-}: LoginFormProps) {
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+}: SignUpFormProps) {
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
-      stayLogin: true,
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    // Create FormData object for the server action
+  const onSubmit = async (data: SignupFormValues) => {
     const formData = new FormData();
+    formData.append("name", data.name);
     formData.append("email", data.email);
     formData.append("password", data.password);
-    formData.append("stayLogin", data.stayLogin!.toString());
+    formData.append("confirmPassword", data.confirmPassword);
 
-    // Call the formAction with the FormData
     formAction(formData);
   };
 
@@ -66,16 +72,27 @@ export default function LoginForm({
     <Card className={cn(`w-full max-w-md border-none`, className)} {...props}>
       <CardHeader>
         <CardTitle>
-          <Heading>Login</Heading>
+          <Heading>Create an Account</Heading>
         </CardTitle>
-        <CardDescription>
-          Enter your credentials to access your dashboard
-        </CardDescription>
+        <CardDescription>Sign up to access the smart dashboard</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
             <ErrorAlert error={error} />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -101,7 +118,12 @@ export default function LoginForm({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" autoComplete="current-password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,35 +131,33 @@ export default function LoginForm({
             />
             <FormField
               control={form.control}
-              name="stayLogin"
+              name="confirmPassword"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      {...field}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Keep me logged in</FormLabel>
-                    <FormDescription>
-                      Not recommended for public devices
-                    </FormDescription>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Creating Account..." : "Sign Up"}
             </Button>
             <div className="text-sm text-center">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <LinkComp
-                href="/signup"
+                href="/login"
                 className="text-primary hover:underline font-bold">
-                Sign up
+                Login
               </LinkComp>
             </div>
           </CardFooter>
@@ -147,4 +167,4 @@ export default function LoginForm({
   );
 }
 
-export { LoginForm };
+export { SignUpForm };
