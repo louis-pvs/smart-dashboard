@@ -1,25 +1,30 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { SidebarProvider } from "@repo/ui/components/base/sidebar";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import "@repo/ui/styles.css";
-import { ModeToggle } from "@repo/ui/components/mode-toggle";
 
-const urbanist = localFont({
+const montserrat = localFont({
   src: [
     {
-      path: "../assets/fonts/Urbanist-VariableFont_wght.ttf",
+      path: "../assets/fonts/Montserrat-VariableFont_wght.ttf",
       style: "regular",
     },
     {
-      path: "../assets/fonts/Urbanist-Italic-VariableFont_wght.ttf",
+      path: "../assets/fonts/Montserrat-Italic-VariableFont_wght.ttf",
       style: "italic",
     },
   ],
   display: "swap",
-  variable: "--font-urbanist",
+  variable: "--font-montserrat",
   preload: true,
-  fallback: ["system-ui", "Helvetica", "sans-serif"],
+  fallback: [
+    "Arial",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "sans-serif",
+  ],
   adjustFontFallback: "Arial",
 });
 const inter = localFont({
@@ -36,7 +41,14 @@ const inter = localFont({
   display: "swap",
   variable: "--font-inter",
   preload: true,
-  fallback: ["Helvetica", "sans-serif"],
+  fallback: [
+    "Arial",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "sans-serif",
+  ],
   adjustFontFallback: "Arial",
 });
 export const metadata: Metadata = {
@@ -51,12 +63,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${urbanist.className} ${inter.className} antialiased min-h-screen overflow-x-hidden`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          >
+      <body
+        className={`${montserrat.className} ${inter.className} antialiased min-h-screen overflow-x-hidden`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
       </body>

@@ -40,7 +40,7 @@ const headingVariants = cva("font-heading tracking-tight", {
   },
   defaultVariants: {
     size: "h2",
-    weight: "bold",
+    weight: "black",
     align: "left",
     variant: "default",
   },

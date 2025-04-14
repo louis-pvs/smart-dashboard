@@ -6,7 +6,6 @@ import {
   IconProps,
   SignIn,
   SidebarSimple,
-  Cube,
 } from "@phosphor-icons/react";
 
 import {

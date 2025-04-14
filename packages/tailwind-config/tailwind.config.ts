@@ -6,8 +6,16 @@ const config: Omit<Config, "content"> = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-urbanist)", "system-ui", "Helvetica", "sans-serif"],
-        heading: ["var(--font-inter)", "Arial", "Helvetica", "sans-serif"],
+        sans: [
+          "var(--font-inter)",
+          "Arial",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        heading: ["var(--font-montserrat)", "Arial", "Helvetica", "sans-serif"],
       },
     },
   },
