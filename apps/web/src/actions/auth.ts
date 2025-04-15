@@ -80,6 +80,10 @@ export async function login(
     };
   } finally {
     if (redirectPath) redirect(redirectPath);
+    return {
+      ...preState,
+      success: true,
+    }
   }
 }
 
@@ -169,5 +173,9 @@ export async function signup(
     };
   } finally {
     if (redirectPath) redirect (redirectPath);
+    return {
+      ...preState,
+      success: true,
+    }
   }
 }
