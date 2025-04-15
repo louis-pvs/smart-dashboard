@@ -1,40 +1,55 @@
 import type { Metadata } from "next";
-import { SidebarProvider } from "@repo/ui/components/ui/sidebar";
 import localFont from "next/font/local";
-import "./globals.css";
-import Sidebar, { SidebarTrigger } from "@repo/ui/components/web-sidebar";
-import "@repo/ui/styles.css";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import "@repo/ui/styles.css";
 
-const DM_Sans = localFont({
+const montserrat = localFont({
   src: [
     {
-      path: "../assets/fonts/dm-sans-v14-latin-regular.woff2",
-      weight: "400",
-      style: "normal",
+      path: "../assets/fonts/Montserrat-VariableFont_wght.ttf",
+      style: "regular",
     },
     {
-      path: "../assets/fonts/dm-sans-v14-latin-700.woff2",
-      weight: "700",
-      style: "normal",
+      path: "../assets/fonts/Montserrat-Italic-VariableFont_wght.ttf",
+      style: "italic",
     },
   ],
-  weight: "regular",
-  preload: true,
-  style: "normal",
   display: "swap",
-  adjustFontFallback: "Arial",
+  variable: "--font-montserrat",
+  preload: true,
   fallback: [
+    "Arial",
+    "system-ui",
     "-apple-system",
-    "blinkmacsystemfont",
+    "BlinkMacSystemFont",
     "Segoe UI",
-    "roboto",
-    "oxygen-sans",
-    "ubuntu",
-    "cantarell",
-    "Helvetica Neue",
     "sans-serif",
   ],
+  adjustFontFallback: "Arial",
+});
+const inter = localFont({
+  src: [
+    {
+      path: "../assets/fonts/Inter-VariableFont_opsz,wght.ttf",
+      style: "regular",
+    },
+    {
+      path: "../assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf",
+      style: "italic",
+    },
+  ],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+  fallback: [
+    "Arial",
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "sans-serif",
+  ],
+  adjustFontFallback: "Arial",
 });
 export const metadata: Metadata = {
   title: "A.I Powered Dashboard",
@@ -48,17 +63,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${DM_Sans.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange>
-          <SidebarProvider>
-            <Sidebar />
-            <SidebarTrigger />
-            {children}
-          </SidebarProvider>
+      <body
+        className={`${montserrat.className} ${inter.className} antialiased min-h-screen overflow-x-hidden`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
         </ThemeProvider>
       </body>
     </html>

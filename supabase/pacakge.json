@@ -1,0 +1,11 @@
+{
+  "name": "supabase",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "npx supabase status || supabase start",
+    "reset": "npx supabase db reset || supabase start",
+    "test": "npx supabase db test",
+    "lint": "npx supabase db lint",
+    "deploy": "npx supabase link --project-ref $SUPABASE_PROJECT_REF && supabase db push"
+  }
+}
