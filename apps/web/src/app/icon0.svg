@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1000" height="1000"><style>
+    #light-icon {
+      display: inline;
+    }
+    #dark-icon {
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #light-icon {
+        display: none;
+      }
+      #dark-icon {
+        display: inline;
+      }
+    }
+  </style><g id="light-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1178)"><rect width="1000" height="1000" fill="#ffffff"></rect><g transform="matrix(1.4992503748125936,0,0,1.4992503748125936,5.684341886080802e-14,244.3778110944528)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="667" height="341"><svg width="667" height="341" viewBox="0 0 667 341" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="logo">
+<g id="Z">
+<path id="Vector 6" d="M620.028 55.5853H433.076L400.816 111.462H587.769L620.028 55.5853Z" fill="black"></path>
+<path id="Vector 7" d="M611.099 230.052H424.145L391.885 285.929H578.84L611.099 230.052Z" fill="black"></path>
+<path id="accent" d="M569.627 142.854H474.485L442.252 198.695L537.368 198.695L569.627 142.854Z" fill="black"></path>
+</g>
+<g id="A">
+<path id="Vector 1" d="M266.245 55.5853H188.452L55.4851 285.929H133.238L266.245 55.5853Z" fill="black"></path>
+<path id="Vector 9" d="M218.398 230.052L324.211 230.052L356.444 285.893H250.657L218.398 230.052Z" fill="black"></path>
+</g>
+<path id="dash" d="M439.532 142.819H251.393L219.115 198.695H407.273L439.532 142.819Z" fill="black"></path>
+<circle id="Ellipse 1" cx="335.352" cy="91.5853" r="36" fill="black"></circle>
+</g>
+</svg></svg></g></g><defs><clipPath id="SvgjsClipPath1178"><rect width="1000" height="1000" x="0" y="0" rx="500" ry="500"></rect></clipPath></defs></svg></g><g id="dark-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1000" height="1000"><g><g transform="matrix(1.4992503748125936,0,0,1.4992503748125936,5.684341886080802e-14,244.3778110944528)" style="filter: invert(100%)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="667" height="341"><svg width="667" height="341" viewBox="0 0 667 341" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="logo">
+<g id="Z">
+<path id="Vector 6" d="M620.028 55.5853H433.076L400.816 111.462H587.769L620.028 55.5853Z" fill="black"></path>
+<path id="Vector 7" d="M611.099 230.052H424.145L391.885 285.929H578.84L611.099 230.052Z" fill="black"></path>
+<path id="accent" d="M569.627 142.854H474.485L442.252 198.695L537.368 198.695L569.627 142.854Z" fill="black"></path>
+</g>
+<g id="A">
+<path id="Vector 1" d="M266.245 55.5853H188.452L55.4851 285.929H133.238L266.245 55.5853Z" fill="black"></path>
+<path id="Vector 9" d="M218.398 230.052L324.211 230.052L356.444 285.893H250.657L218.398 230.052Z" fill="black"></path>
+</g>
+<path id="dash" d="M439.532 142.819H251.393L219.115 198.695H407.273L439.532 142.819Z" fill="black"></path>
+<circle id="Ellipse 1" cx="335.352" cy="91.5853" r="36" fill="black"></circle>
+</g>
+</svg></svg></g></g></svg></g></svg>
