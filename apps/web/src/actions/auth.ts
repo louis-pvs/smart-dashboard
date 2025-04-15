@@ -23,6 +23,8 @@ export async function login(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  let redirectPath;
+
   // Extract form data
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -56,7 +58,7 @@ export async function login(
     if (error) throw new Error(error.message);
 
     // Redirect on success
-    redirect("/overview");
+    redirectPath = "/overview";
   } catch (err) {
     if (err instanceof Error) {
       return {
@@ -76,6 +78,8 @@ export async function login(
       },
       success: false,
     };
+  } finally {
+    if (redirectPath) redirect(redirectPath);
   }
 }
 
@@ -83,6 +87,8 @@ export async function signup(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  let redirectPath;
+
   // Extract form data
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -122,7 +128,7 @@ export async function signup(
 
     // Check if email confirmation is required
     if (authData.user && !authData.user.confirmed_at) {
-      redirect('/verify-email');
+      redirectPath = "/verify-email";
     }
 
     // If no email confirmation is required, create a user profile
@@ -136,14 +142,12 @@ export async function signup(
       });
 
       if (profileError) {
-        console.error("Error creating user profile,", profileError);
         // We still continue as the auth user was created successfully
+        redirectPath = "/overview";
+        throw new Error("Error creating user profile,", profileError);
       }
-
-      // Redirect to overview or onboarding
-      redirect("/overview");
     }
-    throw new Error("Error creating user profile, unable to locate user's profile")
+    throw new Error("Error creating user profile, unable to locate user's profile");
   } catch (err) {
     if (err instanceof Error) {
       return {
@@ -163,5 +167,6 @@ export async function signup(
       },
       success: false,
     };
-  }
+  } finally {
+    if (redirectPath) redirect (redirectPath);
 }
