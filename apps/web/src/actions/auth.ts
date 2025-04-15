@@ -122,10 +122,7 @@ export async function signup(
 
     // Check if email confirmation is required
     if (authData.user && !authData.user.confirmed_at) {
-      throw new Error("Please confirm your email");
-
-      // TODO: You might want to redirect to a verification page instead
-      // redirect('/verify-email');
+      redirect('/verify-email');
     }
 
     // If no email confirmation is required, create a user profile
