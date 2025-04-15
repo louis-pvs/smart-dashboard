@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protected routes that require authentication
-  const protectedRoutes = ["/dashboard", "/projects", "/tasks"];
+  const protectedRoutes = ["/overview"];
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Auth routes that should redirect if already logged in
-  const authRoutes = ["/login", "/signup"];
+  const authRoutes = ["/login", "/signup", "/verify-email"];
   const isAuthRoute = authRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
