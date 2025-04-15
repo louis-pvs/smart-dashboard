@@ -30,7 +30,7 @@
       "persistent": true
     },
     "web#build": {
-      "dependsOn": ["@repo/schema#build"]
+      "dependsOn": ["@repo/types#build", "@repo/schema#build"]
     }
   }
 }
