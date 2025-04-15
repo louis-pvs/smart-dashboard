@@ -169,4 +169,5 @@ export async function signup(
     };
   } finally {
     if (redirectPath) redirect (redirectPath);
+  }
 }
