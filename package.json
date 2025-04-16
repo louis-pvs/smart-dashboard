@@ -7,10 +7,11 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
+    "dev": "turbo run dev",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate:types": "pnpm run start --filter=@repo/supabase && pnpm run generate --filter=@repo/types"
   },
   "peerDependencies": {
     "react": "^19",
@@ -18,6 +19,7 @@
     "tailwindcss": "^4"
   },
   "devDependencies": {
+    "appwrite": "^17.0.1",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "turbo": "^2.5.0"

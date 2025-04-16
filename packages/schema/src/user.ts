@@ -1,28 +1,44 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // User role enum
 export const userRoleEnum = z.enum([
-  'ADMIN',
-  'MANAGER',
-  'DEVELOPER',
-  'DESIGNER',
-  'STAKEHOLDER',
+  "ADMIN",
+  "MANAGER",
+  "DEVELOPER",
+  "DESIGNER",
+  "STAKEHOLDER",
 ]);
 
-export type UserRole = z.infer<typeof userRoleEnum>;
-
-// Base schema for user data
+// User schema
 export const userSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters'
-  }),
-  email: z.string().email({
-    message: 'Please enter a valid email address'
-  }),
-  role: userRoleEnum.default('DEVELOPER'),
+  id: z.string().min(1),
+  name: z.string().min(1).max(255),
+  email: z.string().email(),
+  role: userRoleEnum,
   skills: z.array(z.string()).optional(),
   avatar: z.string().url().optional(),
 });
 
-// Type inference
+// Schema for creating a user
+export const createUserSchema = z.object({
+  name: z.string().min(1).max(255),
+  email: z.string().email(),
+  role: userRoleEnum,
+  skills: z.array(z.string()).optional(),
+  avatar: z.string().url().optional(),
+});
+
+// Schema for updating a user
+export const updateUserSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  email: z.string().email().optional(),
+  role: userRoleEnum.optional(),
+  skills: z.array(z.string()).optional(),
+  avatar: z.string().url().optional(),
+});
+
+// Type definitions
 export type User = z.infer<typeof userSchema>;
+export type UserRole = z.infer<typeof userRoleEnum>;
+export type CreateUser = z.infer<typeof createUserSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;

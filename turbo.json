@@ -2,7 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": ["NODE_ENV"],
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_APPWRITE_ENDPOINT",
+    "NEXT_PUBLIC_APPWRITE_PROJECT_ID",
+    "NEXT_PUBLIC_APP_URL",
+    "APPWRITE_API_KEY",
+    "PERPLEXITY_API_KEY"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -13,16 +20,10 @@
       "dependsOn": ["^lint"]
     },
     "start": {
-      "dependsOn": ["web#start", "supabase#start"]
-    },
-    "reset": {
-      "dependsOn": ["supabase#reset"]
+      "dependsOn": ["^start"]
     },
     "test": {
       "dependsOn": ["^build", "^test"]
-    },
-    "deploy": {
-      "dependsOn": ["supabase#deploy"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]

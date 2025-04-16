@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import {
+  deleteAuthErrorCookie,
+  setAuthErrorCookie,
+} from "@/lib/cookies-helper";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -44,6 +48,10 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute && !user) {
+    await setAuthErrorCookie({
+      errors: { server: ["User session expired, please log in again."] },
+      success: false,
+    });
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -53,8 +61,9 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
 
-  if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (isAuthRoute) {
+    await deleteAuthErrorCookie();
+    if (user) return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // !IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
@@ -69,7 +78,6 @@ export async function middleware(request: NextRequest) {
   //    return myNewResponse
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
-
   return supabaseResponse;
 }
 

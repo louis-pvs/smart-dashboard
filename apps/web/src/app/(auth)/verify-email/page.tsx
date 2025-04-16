@@ -1,15 +1,17 @@
-import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardDescription,
-  CardTitle,
-} from "@repo/ui/components/card";
-import { Heading } from "@repo/ui/components/heading";
 import Link from "next/link";
+import { Button } from "@repo/ui/components/button";
+import { Card, CardDescription, CardTitle } from "@repo/ui/components/card";
+import { Heading } from "@repo/ui/components/heading";
+import { AuthFormState } from "@/actions/auth";
+import ErrorAlert from "@/components/error-alert";
+import { getAuthErrorCookie } from "@/lib/cookies-helper";
 
-export default function VerifyEmailPage() {
+export default async function VerifyEmailPage() {
+  const errorState: AuthFormState | null = await getAuthErrorCookie();
+
   return (
     <section className="flex flex-1 items-center justify-center flex-col gap-4">
+      <ErrorAlert error={errorState?.errors?.server?.[0] ?? null} />
       <Card className="p-6 border-non w-full max-w-md">
         <CardTitle>
           <Heading>Check your email</Heading>

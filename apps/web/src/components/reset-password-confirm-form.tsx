@@ -24,43 +24,47 @@ import {
   FormLabel,
   FormMessage,
 } from "@repo/ui/components/form";
-import { SignupFormValues, signupSchema } from "@repo/schema";
 import { cn } from "@repo/ui/lib";
 import { Heading } from "@repo/ui/components/heading";
 import ErrorAlert from "@/components/error-alert";
-import { AuthFormState, signup } from "@/actions/auth";
+import { AuthFormState, confirmPasswordReset } from "@/actions/auth";
+import { resetPasswordConfirmFormValues, resetPasswordConfirmSchema } from "@repo/schema";
 
-interface SignupFormProps {
+interface ResetPasswordConfirmFormProps {
   initialState?: AuthFormState;
+  token: string;
 }
 
-export default function SignUpForm({
+export default function ResetPasswordConfirmForm({
   initialState = { success: false },
-}: SignupFormProps) {
-  const [state, formAction, isPending] = useActionState(signup, initialState);
+  token,
+}: ResetPasswordConfirmFormProps) {
+  const [state, formAction, isPending] = useActionState(
+    confirmPasswordReset,
+    initialState
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetComplete, setResetComplete] = useState(state.success);
 
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<resetPasswordConfirmFormValues>({
+    resolver: zodResolver(resetPasswordConfirmSchema),
     defaultValues: {
-      name: "",
-      email: "",
       password: "",
       confirmPassword: "",
+      token: token,
     },
   });
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (data: resetPasswordConfirmFormValues) => {
     const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
+    formData.append("token", data.token);
 
     // Call the formAction with the FormData
     startTransition(() => {
-      formAction(formData);
+      formAction(formData)
     });
   };
 
@@ -72,63 +76,51 @@ export default function SignUpForm({
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  if (resetComplete) {
+    return (
+      <Card className={cn(`w-full max-w-md border-none`)}>
+        <CardHeader>
+          <CardTitle>
+            <Heading>Password Reset Complete</Heading>
+          </CardTitle>
+          <CardDescription>
+            Your password has been successfully reset. You can now log in with
+            your new password.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="flex flex-col space-y-4 pt-6">
+          <Button asChild className="w-full">
+            <Link href="/login">Go to Login</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
   return (
     <Card className={cn(`w-full max-w-md border-none`)}>
       <CardHeader>
         <CardTitle>
-          <Heading>Create an Account</Heading>
+          <Heading>Set New Password</Heading>
         </CardTitle>
-        <CardDescription>Sign up to access the smart dashboard</CardDescription>
+        <CardDescription>
+          Create a new password for your account
+        </CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
             <ErrorAlert
-              title="Authentication Error"
+              title="Reset Password Error"
               error={state.errors?.server![0] ?? null}
             />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      autoComplete="name"
-                      autoFocus
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      placeholder="your.email@example.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <input type="hidden" {...form.register("token")} />
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -136,6 +128,7 @@ export default function SignUpForm({
                         placeholder="••••••••"
                         autoComplete="new-password"
                         className="pr-10"
+                        autoFocus
                         {...field}
                       />
                       <Button
@@ -146,9 +139,9 @@ export default function SignUpForm({
                         onClick={togglePasswordVisibility}
                         tabIndex={-1}>
                         {showPassword ? (
-                          <EyeClosed weight="duotone" className="h-4 w-4 text-muted-foreground" />
+                          <EyeClosed className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye weight="duotone" className="h-4 w-4 text-muted-foreground" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                         <span className="sr-only">
                           {showPassword ? "Hide password" : "Show password"}
@@ -169,7 +162,7 @@ export default function SignUpForm({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>Confirm New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -206,10 +199,10 @@ export default function SignUpForm({
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Creating Account..." : "Sign Up"}
+              {isPending ? "Resetting Password..." : "Reset Password"}
             </Button>
             <div className="text-sm text-center">
-              Already have an account?{" "}
+              Remember your password?{" "}
               <Link
                 href="/login"
                 className="text-primary hover:underline font-bold">
@@ -223,4 +216,4 @@ export default function SignUpForm({
   );
 }
 
-export { SignUpForm };
+export { ResetPasswordConfirmForm };

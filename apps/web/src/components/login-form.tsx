@@ -1,6 +1,7 @@
 "use client";
 
-import { startTransition } from "react";
+import { startTransition, useActionState, useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@repo/ui/components/button";
@@ -24,12 +25,10 @@ import {
 } from "@repo/ui/components/form";
 import { LoginFormValues, loginSchema } from "@repo/schema";
 import { Checkbox } from "@repo/ui/components/checkbox";
-import { cn } from "@repo/ui/lib";
 import { Heading } from "@repo/ui/components/heading";
 import ErrorAlert from "@/components/error-alert";
 import { AuthFormState, login } from "@/actions/auth";
-import Link from "next/link";
-import { useFormState } from "react-dom";
+import { Eye, EyeClosed } from "@phosphor-icons/react";
 
 interface LoginFormProps {
   initialState?: AuthFormState;
@@ -38,7 +37,8 @@ interface LoginFormProps {
 export default function LoginForm({
   initialState = { success: false },
 }: LoginFormProps) {
-  const [state, formAction, isPending] = useFormState(login, initialState);
+  const [state, formAction, isPending] = useActionState(login, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -56,17 +56,21 @@ export default function LoginForm({
     formData.append("password", data.password);
     formData.append("stayLogin", data.stayLogin!.toString());
 
-    // Call the formAction with the FormData\
+    // Call the formAction with the FormData
     startTransition(() => {
       formAction(formData);
     });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <Card className={cn(`w-full max-w-md border-none`)}>
+    <Card className="w-full max-w-md border-none">
       <CardHeader>
         <CardTitle>
-          <Heading>Login</Heading>
+          <Heading>Welcome back!</Heading>
         </CardTitle>
         <CardDescription>
           Enter your credentials to access your dashboard
@@ -75,7 +79,7 @@ export default function LoginForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
-            <ErrorAlert error={state.errors?.server![0] ?? null} />
+            <ErrorAlert title="Authentication Error" error={state.errors?.server![0] ?? null} />
             <FormField
               control={form.control}
               name="email"
@@ -99,14 +103,42 @@ export default function LoginForm({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Password</FormLabel>
+                    <Link
+                      href="/reset-password"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={togglePasswordVisibility}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? (
+                          <EyeClosed weight="duotone" className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye weight="duotone" className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span className="sr-only">
+                          {showPassword ? "Hide password" : "Show password"}
+                        </span>
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -152,4 +184,4 @@ export default function LoginForm({
   );
 }
 
-export { LoginForm };
+export { LoginForm }

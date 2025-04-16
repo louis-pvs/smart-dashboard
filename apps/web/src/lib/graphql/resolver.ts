@@ -1,365 +1,441 @@
 import { Resolvers } from "@apollo/client";
-import { createProjectSchema, updateProjectSchema } from "@repo/schema";
-import { createTaskSchema, updateTaskSchema } from "@repo/schema";
-
-import {
-  ProjectMemberWithUser,
-  TaskDependencyWithTask,
-  GraphQLContext
-} from "@repo/types";
+import { projectRepository } from "@/lib/data/project-repository";
+import { taskRepository } from "@/lib/data/task-repository";
+import { userRepository } from "@/lib/data/user-repository";
+import { aiService } from "@/lib/services/ai";
+import { GraphQLContext } from "@repo/types";
+import type {
+  Project,
+  ProjectMemberRole,
+  Task,
+  User,
+} from "@repo/schema";
+import { projectMemberRoleEnum, taskStatusEnum } from "@repo/schema";
+import { ProjectMember } from "@repo/schema";
 
 export const resolvers: Resolvers = {
   Query: {
     // Project queries
-    projects: async (_, __, { supabase, userId }: GraphQLContext) => {
-      if (!userId) throw new Error("Authentication required");
-
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw new Error(error.message);
-      return data;
+    projects: async (_, __, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      const { projects } = await projectRepository.getAllProjects();
+      return projects;
     },
 
-    project: async (_, { id }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    project: async (_, { id }: Project, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return projectRepository.getProject(id);
+    },
 
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", id)
-        .single();
+    projectsByTeamMember: async (
+      _,
+      { userId }: { userId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return projectRepository.getProjectsByTeamMember(userId);
+    },
 
-      if (error) throw new Error(error.message);
-      return data;
+    projectsWithRiskAnalysis: async (_, __, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return projectRepository.getProjectsWithRiskAnalysis();
     },
 
     // Task queries
-    tasks: async (_, { projectId }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
-
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw new Error(error.message);
-      return data;
+    tasks: async (
+      _,
+      { projectId }: { projectId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return taskRepository.getTasksByProject(projectId);
     },
 
-    task: async (_, { id }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    task: async (_, { id }: { id: string }, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return taskRepository.getTask(id);
+    },
 
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw new Error(error.message);
-      return data;
+    tasksByAssignee: async (
+      _,
+      { userId }: { userId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return taskRepository.getTasksByAssignee(userId);
     },
 
     // User queries
-    users: async (_, __, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
-
-      const { data, error } = await supabase.from("users").select("*");
-
-      if (error) throw new Error(error.message);
-      return data;
+    users: async (_, __, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return userRepository.getAllUsers();
     },
 
-    user: async (_, { id }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    user: async (_, { id }: { id: string }, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return userRepository.getUser(id);
+    },
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", id)
-        .single();
+    // Analytics queries
+    sprintReport: async (
+      _,
+      { projectId, startDate, endDate }: {
+        projectId: string;
+        startDate: string;
+        endDate: string;
+      },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return aiService.generateSprintReport(projectId, startDate, endDate);
+    },
 
-      if (error) throw new Error(error.message);
-      return data;
+    teamPerformance: async (
+      _,
+      { projectId }: { projectId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      return aiService.analyzeTeamPerformance(projectId);
+    },
+
+    // Real-time queries
+    activeUsers: async (
+      _,
+      __,
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+      // TODO: This would be implemented with Appwrite Realtime
+      return []; // Placeholder
     },
   },
 
   Mutation: {
     // Project mutations
-    createProject: async (_, { input }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    createProject: async (
+      _,
+      { input }: { input: Project },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
 
-      // Validate input with Zod
-      const validatedInput = createProjectSchema.parse(input);
+      const project = await projectRepository.createProject({
+        name: input.name,
+        description: input.description || null,
+        aiRiskScore: null,
+        predictedCompletion: null,
+      });
 
-      // Add project to database
-      const { data, error } = await supabase
-        .from("projects")
-        .insert({
-          name: validatedInput.name,
-          description: validatedInput.description,
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-
-      // Add team members if provided
-      if (
-        validatedInput.teamMemberIds &&
-        validatedInput.teamMemberIds.length > 0
-      ) {
-        const teamMembers = validatedInput.teamMemberIds.map((memberId) => ({
-          project_id: data.id,
-          user_id: memberId,
-          role: "DEVELOPER",
-        }));
-
-        const { error: memberError } = await supabase
-          .from("project_members")
-          .insert(teamMembers);
-
-        if (memberError) throw new Error(memberError.message);
+      // Add team members if specified
+      if (input.teamMembers && input.teamMembers.length > 0) {
+        for (const member of input.teamMembers) {
+          const userId = member.userId;
+          await projectRepository.addTeamMember(
+            project.id,
+            userId,
+            userId === context.userId
+              ? projectMemberRoleEnum.Enum.OWNER
+              : projectMemberRoleEnum.Enum.DEVELOPER,
+          );
+        }
+      } else {
+        // Add current user as owner
+        await projectRepository.addTeamMember(
+          project.id,
+          context.userId,
+          projectMemberRoleEnum.Enum.OWNER,
+        );
       }
 
-      // Add the creator as an owner
-      const { error: ownerError } = await supabase
-        .from("project_members")
-        .insert({
-          project_id: data.id,
-          user_id: userId,
-          role: "OWNER",
-        });
+      // Generate AI risk score and predicted completion
+      if (project.description) {
+        const aiAnalysis = await aiService.analyzeProjectRisks(project.id);
+        if (aiAnalysis.length > 0) {
+          interface RiskFactor {
+            severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+          }
 
-      if (ownerError) throw new Error(ownerError.message);
+          const avgRiskScore: number =
+            aiAnalysis.reduce((sum: number, risk: RiskFactor): number => {
+              const severityScore: number = risk.severity === "LOW"
+                ? 0.25
+                : risk.severity === "MEDIUM"
+                ? 0.5
+                : risk.severity === "HIGH"
+                ? 0.75
+                : 1.0;
+              return sum + severityScore;
+            }, 0) / aiAnalysis.length;
 
-      return data;
-    },
+          await projectRepository.updateProject(project.id, {
+            aiRiskScore: avgRiskScore,
+          });
 
-    updateProject: async (_, { id, input }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
-
-      // Validate input with Zod
-      const validatedInput = updateProjectSchema.parse(input);
-
-      // Update project
-      const { data, error } = await supabase
-        .from("projects")
-        .update(validatedInput)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-
-      // Update team members if provided
-      if (validatedInput.teamMemberIds) {
-        // First, remove all existing members except the owner
-        await supabase
-          .from("project_members")
-          .delete()
-          .eq("project_id", id)
-          .neq("role", "OWNER");
-
-        // Then add the new members
-        const teamMembers = validatedInput.teamMemberIds.map((memberId) => ({
-          project_id: id,
-          user_id: memberId,
-          role: "DEVELOPER",
-        }));
-
-        if (teamMembers.length > 0) {
-          const { error: memberError } = await supabase
-            .from("project_members")
-            .insert(teamMembers);
-
-          if (memberError) throw new Error(memberError.message);
+          // Update the project object
+          project.aiRiskScore = avgRiskScore;
         }
       }
 
-      return data;
+      return project;
     },
 
-    deleteProject: async (_, { id }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    updateProject: async (
+      _,
+      { id, input }: { id: string; input: Project },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
 
-      // Check if user is the owner
-      const { data: memberData, error: memberError } = await supabase
-        .from("project_members")
-        .select("role")
-        .eq("project_id", id)
-        .eq("user_id", userId)
-        .single();
+      // Verify user has access to this project
+      const project = await projectRepository.getProject(id);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
 
-      if (memberError) throw new Error(memberError.message);
-      if (memberData.role !== "OWNER")
-        throw new Error("Only project owners can delete projects");
+      return projectRepository.updateProject(id, {
+        name: input.name,
+        description: input.description,
+        // Don't update AI fields directly
+      });
+    },
 
-      // Delete project
-      const { error } = await supabase.from("projects").delete().eq("id", id);
+    deleteProject: async (
+      _,
+      { id }: { id: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
 
-      if (error) throw new Error(error.message);
+      // Verify user is the owner
+      const project = await projectRepository.getProject(id);
+      const isOwner = project.teamMembers?.some(
+        (member: ProjectMember) =>
+          member.userId === context.userId &&
+          member.role === projectMemberRoleEnum.Enum.OWNER,
+      );
+      if (!isOwner) throw new Error("Only project owners can delete projects");
 
-      return true;
+      return projectRepository.deleteProject(id);
     },
 
     // Task mutations
-    createTask: async (_, { input }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    createTask: async (
+      _,
+      { input }: { input: Task },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
 
-      // Validate input with Zod
-      const validatedInput = createTaskSchema.parse(input);
+      // Verify user has access to this project
+      const project = await projectRepository.getProject(input.projectId);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
 
-      // Add task to database
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert({
-          title: validatedInput.title,
-          description: validatedInput.description,
-          status: validatedInput.status,
-          assignee_id: validatedInput.assigneeId,
-          project_id: validatedInput.projectId,
-        })
-        .select()
-        .single();
+      const task = await taskRepository.createTask({
+        title: input.title,
+        description: input.description || null,
+        status: input.status || taskStatusEnum.Enum.BACKLOG,
+        projectId: input.projectId,
+        assigneeId: input.assigneeId || null,
+        aiEstimatedHours: null,
+      });
 
-      if (error) throw new Error(error.message);
-
-      // Add dependencies if provided
-      if (
-        validatedInput.dependencyIds &&
-        validatedInput.dependencyIds.length > 0
-      ) {
-        const dependencies = validatedInput.dependencyIds.map((depId) => ({
-          task_id: data.id,
-          dependency_id: depId,
-        }));
-
-        const { error: depError } = await supabase
-          .from("task_dependencies")
-          .insert(dependencies);
-
-        if (depError) throw new Error(depError.message);
-      }
-
-      return data;
-    },
-
-    updateTask: async (_, { id, input }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
-
-      // Validate input with Zod
-      const validatedInput = updateTaskSchema.parse(input);
-
-      // Update task
-      const { data, error } = await supabase
-        .from("tasks")
-        .update({
-          title: validatedInput.title,
-          description: validatedInput.description,
-          status: validatedInput.status,
-          assignee_id: validatedInput.assigneeId,
-        })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-
-      // Update dependencies if provided
-      if (validatedInput.dependencyIds) {
-        // First, remove all existing dependencies
-        await supabase.from("task_dependencies").delete().eq("task_id", id);
-
-        // Then add the new dependencies
-        if (validatedInput.dependencyIds.length > 0) {
-          const dependencies = validatedInput.dependencyIds.map((depId) => ({
-            task_id: id,
-            dependency_id: depId,
-          }));
-
-          const { error: depError } = await supabase
-            .from("task_dependencies")
-            .insert(dependencies);
-
-          if (depError) throw new Error(depError.message);
+      // Add dependencies if specified
+      if (input.dependencies && input.dependencies.length > 0) {
+        for (const dependency of input.dependencies) {
+          await taskRepository.addTaskDependency(task.id, dependency.id);
         }
       }
 
-      return data;
+      // Generate AI estimated hours
+      if (task.description) {
+        const aiPrediction = await aiService.generateTaskEstimate(task.id);
+        if (aiPrediction) {
+          await taskRepository.updateTask(task.id, {
+            aiEstimatedHours: aiPrediction.estimatedHours,
+          });
+
+          // Update the task object
+          task.aiEstimatedHours = aiPrediction.estimatedHours;
+        }
+      }
+
+      return task;
     },
 
-    deleteTask: async (_, { id }, { supabase, userId }) => {
-      if (!userId) throw new Error("Authentication required");
+    updateTask: async (
+      _,
+      { id, input }: { id: string; input: Task },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
 
-      // Delete task
-      const { error } = await supabase.from("tasks").delete().eq("id", id);
+      // Verify user has access to this task's project
+      const task = await taskRepository.getTask(id);
+      const project = await projectRepository.getProject(task.projectId);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
 
-      if (error) throw new Error(error.message);
+      return taskRepository.updateTask(id, {
+        title: input.title,
+        description: input.description,
+        status: input.status,
+        assigneeId: input.assigneeId,
+        projectId: input.projectId,
+      });
+    },
 
-      return true;
+    deleteTask: async (_, { id }: { id: string }, context: GraphQLContext) => {
+      if (!context.userId) throw new Error("Authentication required");
+
+      // Verify user has access to this task's project
+      const task = await taskRepository.getTask(id);
+      const project = await projectRepository.getProject(task.projectId);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
+
+      return taskRepository.deleteTask(id);
+    },
+
+    // Team member mutations
+    addTeamMember: async (
+      _,
+      { projectId, userId, role }: {
+        projectId: string;
+        userId: string;
+        role: ProjectMemberRole;
+      },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+
+      // Verify current user is the owner
+      const project = await projectRepository.getProject(projectId);
+      const isOwner = project.teamMembers?.some(
+        (member: ProjectMember) =>
+          member.userId === context.userId &&
+          member.role === projectMemberRoleEnum.Enum.OWNER,
+      );
+      if (!isOwner) throw new Error("Only project owners can add team members");
+
+      return projectRepository.addTeamMember(projectId, userId, role);
+    },
+
+    // AI mutations
+    generateTaskEstimate: async (
+      _,
+      { taskId }: { taskId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+
+      const task = await taskRepository.getTask(taskId);
+      const project = await projectRepository.getProject(task.projectId);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
+
+      const prediction = await aiService.generateTaskEstimate(taskId);
+
+      // Update the task with the estimate
+      await taskRepository.updateTask(taskId, {
+        aiEstimatedHours: prediction.estimatedHours,
+      });
+
+      return prediction;
+    },
+
+    analyzeProjectRisks: async (
+      _,
+      { projectId }: { projectId: string },
+      context: GraphQLContext,
+    ) => {
+      if (!context.userId) throw new Error("Authentication required");
+
+      const project = await projectRepository.getProject(projectId);
+      const hasAccess = project.teamMembers?.some((member: ProjectMember) =>
+        member.userId === context.userId
+      );
+      if (!hasAccess) throw new Error("Access denied");
+
+      const riskFactors = await aiService.analyzeProjectRisks(projectId);
+
+      // Update the project with the average risk score
+      if (riskFactors.length > 0) {
+        const avgRiskScore = riskFactors.reduce((sum, risk) => {
+          const severityScore = risk.severity === "LOW"
+            ? 0.25
+            : risk.severity === "MEDIUM"
+            ? 0.5
+            : risk.severity === "HIGH"
+            ? 0.75
+            : 1.0;
+          return sum + severityScore;
+        }, 0) / riskFactors.length;
+
+        await projectRepository.updateProject(projectId, {
+          aiRiskScore: avgRiskScore,
+        });
+      }
+
+      return riskFactors;
     },
   },
 
-  // Field resolvers
+  // Type resolvers
   Project: {
-    tasks: async (parent, _, { supabase }) => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("project_id", parent.id);
-
-      if (error) throw new Error(error.message);
-      return data;
+    tasks: async (parent: Project) => {
+      if (parent.tasks) return parent.tasks;
+      return taskRepository.getTasksByProject(parent.id);
     },
+    teamMembers: async (parent: Project) => {
+      if (parent.teamMembers) {
+        // If teamMembers already includes user data, return as is
+        if (parent.teamMembers[0]?.user) return parent.teamMembers;
 
-    teamMembers: async (parent, _, { supabase }) => {
-      const { data, error } = await supabase
-        .from("project_members")
-        .select("users(*)")
-        .eq("project_id", parent.id);
+        // Otherwise, fetch user data for each team member
+        return Promise.all(parent.teamMembers.map(async (member: ProjectMember) => {
+          const user = await userRepository.getUser(member.userId);
+          return { ...member, user };
+        }));
+      }
 
-      if (error) throw new Error(error.message);
-      return (data as ProjectMemberWithUser[]).map((item) => item.users);
+      // If teamMembers not included, fetch them
+      const members = await projectRepository.getProjectMembers(parent.id);
+      return Promise.all(members.map(async (member: ProjectMember) => {
+        const user = await userRepository.getUser(member.userId);
+        return { ...member, user };
+      }));
     },
   },
 
   Task: {
-    assignee: async (parent, _, { supabase }) => {
-      if (!parent.assignee_id) return null;
-
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", parent.assignee_id)
-        .single();
-
-      if (error) throw new Error(error.message);
-      return data;
+    assignee: async (parent: Task) => {
+      if (!parent.assigneeId) return null;
+      if (parent.assignee) return parent.assignee;
+      return userRepository.getUser(parent.assigneeId);
     },
-
-    dependencies: async (parent, _, { supabase }) => {
-      const { data, error } = await supabase
-        .from("task_dependencies")
-        .select("tasks(*)")
-        .eq("task_id", parent.id);
-
-      if (error) throw new Error(error.message);
-      return (data as TaskDependencyWithTask[]).map((item) => item.tasks);
+    dependencies: async (parent: Task) => {
+      if (parent.dependencies) return parent.dependencies;
+      return taskRepository.getTaskDependencies(parent.id);
     },
+    project: async (parent: Task) => {
+      return projectRepository.getProject(parent.projectId);
+    },
+  },
 
-    project: async (parent, _, { supabase }) => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", parent.project_id)
-        .single();
-
-      if (error) throw new Error(error.message);
-      return data;
+  User: {
+    projects: async (parent: User) => {
+      return projectRepository.getProjectsByTeamMember(parent.id);
     },
   },
 };

@@ -9,6 +9,7 @@
     "dist/**"
   ],
   "scripts": {
+    "generate": "(cd ../../ && supabase gen types typescript --local > ./packages/types/src/database.ts) && prettier --write \"src/**/*.{ts,tsx,md}\"",
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/",
@@ -16,10 +17,10 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@repo/schema": "workspace:*",
+    "appwrite": "^17.0.1",
+    "prettier": "^3.5.3",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.49.4"
   }
 }
