@@ -2,7 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@repo/ui/components/base/alert";
+} from "@repo/ui/components/alert";
 import { TerminalWindow } from "@phosphor-icons/react/dist/ssr";
 
 export default function ErrorAlert({ error }: { error: null | string }) {

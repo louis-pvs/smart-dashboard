@@ -1,4 +1,4 @@
-import Footer from "@repo/ui/components/footer";
+import Footer from "@/components/footer";
 
 export default function AuthLayout({
   children,

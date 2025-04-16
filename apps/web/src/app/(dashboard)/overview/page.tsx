@@ -1,4 +1,4 @@
-import { Heading } from "@repo/ui/components/base/heading";
+import { Heading } from "@repo/ui/components/heading";
 
 export default function Overview() {
   return (

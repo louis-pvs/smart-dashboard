@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { ScrollArea } from "@repo/ui/components/base/scroll-area";
+import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@repo/ui/lib";
 

@@ -1,10 +1,12 @@
 "use client";
 
-import { TerminalWindow } from "@phosphor-icons/react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { startTransition } from "react";
+import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
-import { Button } from "@repo/ui/components/base/button";
-import { Input } from "@repo/ui/components/base/input";
+import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
 import {
   Card,
   CardContent,
@@ -12,42 +14,30 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/base/card";
+} from "@repo/ui/components/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@repo/ui/components/base/form";
+} from "@repo/ui/components/form";
 import { SignupFormValues, signupSchema } from "@repo/schema";
-import { Checkbox } from "@repo/ui/components/base/checkbox";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@repo/ui/components/base/alert";
 import { cn } from "@repo/ui/lib";
-import { Heading } from "@repo/ui/components/base/heading";
-import ErrorAlert from "@repo/ui/components/error-alert";
+import { Heading } from "@repo/ui/components/heading";
+import ErrorAlert from "@/components/error-alert";
+import { AuthFormState, signup } from "@/actions/auth";
 
-type SignUpFormProps = {
-  formAction: (formData: FormData) => void;
-  error: string | null;
-  loading: boolean;
-  LinkComp?: React.ElementType;
-} & React.ComponentProps<"div">;
+interface SignupFormProps {
+  initialState?: AuthFormState;
+}
 
 export default function SignUpForm({
-  formAction,
-  error,
-  loading,
-  LinkComp = (props) => <a {...props} />,
-  className,
-  ...props
-}: SignUpFormProps) {
+  initialState = { success: false },
+}: SignupFormProps) {
+  const [state, formAction, isPending] = useFormState(signup, initialState);
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -65,11 +55,14 @@ export default function SignUpForm({
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
 
-    formAction(formData);
+    // Call the formAction with the FormData\
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
-    <Card className={cn(`w-full max-w-md border-none`, className)} {...props}>
+    <Card className={cn(`w-full max-w-md border-none`)}>
       <CardHeader>
         <CardTitle>
           <Heading>Create an Account</Heading>
@@ -79,7 +72,7 @@ export default function SignUpForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
-            <ErrorAlert error={error} />
+            <ErrorAlert error={state.errors?.server![0] ?? null} />
             <FormField
               control={form.control}
               name="name"
@@ -149,16 +142,16 @@ export default function SignUpForm({
             />
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating Account..." : "Sign Up"}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Creating Account..." : "Sign Up"}
             </Button>
             <div className="text-sm text-center">
               Already have an account?{" "}
-              <LinkComp
+              <Link
                 href="/login"
                 className="text-primary hover:underline font-bold">
                 Login
-              </LinkComp>
+              </Link>
             </div>
           </CardFooter>
         </form>

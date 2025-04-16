@@ -1,24 +1,28 @@
-"use client";
+import { cookies } from "next/headers";
+import { SignUpForm } from "@/components/sign-up-form";
+import { AuthErrorAlert } from "@/components/auth-error-alert";
+import { AuthFormState } from "@/actions/auth";
 
-import { SignUpForm } from "@repo/ui/components/sign-up-form";
-import Link from "next/link";
-import { useActionState } from "react";
-import { signup } from "@/actions/auth";
+export default async function SignupPage() {
+  const cookiesStore = await cookies();
 
-export default function SignupPage() {
-  const [state, formAction, isPending] = useActionState(signup, {
-    errors: { server: [], name: [], email: [], password: [], confirmPassword: [] },
-    success: false,
-  });
+  // Get error from cookie if it exists
+  let errorState: AuthFormState | null = null;
+  const errorCookie = cookies().get("authError");
 
+  if (errorCookie) {
+    try {
+      errorState = JSON.parse(errorCookie.value);
+      // Delete the cookie after reading it
+      cookies().delete("authError");
+    } catch (e) {
+      console.error("Failed to parse auth error cookie", e);
+    }
+  }
   return (
     <div className="flex flex-1 items-center justify-center flex-col gap-4 rounded-4xl">
-      <SignUpForm
-        formAction={formAction}
-        LinkComp={Link}
-        loading={isPending}
-        error={state.errors?.server![0] ?? null}
-      />
+      {errorState && <AuthErrorAlert errors={errorState.errors} />}
+      <SignUpForm initialState={errorState || { success: false }} />
     </div>
   );
 }

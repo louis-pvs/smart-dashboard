@@ -1,8 +1,8 @@
-import Sidebar from "@/app/ui/sidebar";
-import Header from "@repo/ui/components/header";
-import Footer from "@repo/ui/components/footer";
+import Sidebar from "@/components/sidebar";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { SidebarTrigger } from "@repo/ui/components/sidebar";
-import { SidebarProvider } from "@repo/ui/components/base/sidebar";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
 
 export default function AuthLayout({
   children,

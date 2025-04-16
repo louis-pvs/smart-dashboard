@@ -1,10 +1,10 @@
-import { Button } from "@repo/ui/components/base/button";
+import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardDescription,
   CardTitle,
-} from "@repo/ui/components/base/card";
-import { Heading } from "@repo/ui/components/base/heading";
+} from "@repo/ui/components/card";
+import { Heading } from "@repo/ui/components/heading";
 import Link from "next/link";
 
 export default function VerifyEmailPage() {

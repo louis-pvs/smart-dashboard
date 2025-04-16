@@ -1,9 +1,10 @@
 "use client";
 
+import { startTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button } from "@repo/ui/components/base/button";
-import { Input } from "@repo/ui/components/base/input";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
 import {
   Card,
   CardContent,
@@ -11,7 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/base/card";
+} from "@repo/ui/components/card";
 import {
   Form,
   FormControl,
@@ -20,28 +21,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@repo/ui/components/base/form";
+} from "@repo/ui/components/form";
 import { LoginFormValues, loginSchema } from "@repo/schema";
-import { Checkbox } from "@repo/ui/components/base/checkbox";
+import { Checkbox } from "@repo/ui/components/checkbox";
 import { cn } from "@repo/ui/lib";
-import { Heading } from "@repo/ui/components/base/heading";
-import ErrorAlert from "@repo/ui/components/error-alert";
+import { Heading } from "@repo/ui/components/heading";
+import ErrorAlert from "@/components/error-alert";
+import { AuthFormState, login } from "@/actions/auth";
+import Link from "next/link";
+import { useFormState } from "react-dom";
 
-type LoginFormProps = {
-  formAction: (formData: FormData) => void;
-  error: string | null;
-  loading: boolean;
-  LinkComp?: React.ElementType;
-} & React.ComponentProps<"div">;
+interface LoginFormProps {
+  initialState?: AuthFormState;
+}
 
 export default function LoginForm({
-  formAction,
-  error,
-  loading,
-  LinkComp = (props) => <a {...props} />,
-  className,
-  ...props
+  initialState = { success: false },
 }: LoginFormProps) {
+  const [state, formAction, isPending] = useFormState(login, initialState);
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -58,12 +56,14 @@ export default function LoginForm({
     formData.append("password", data.password);
     formData.append("stayLogin", data.stayLogin!.toString());
 
-    // Call the formAction with the FormData
-    formAction(formData);
+    // Call the formAction with the FormData\
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
-    <Card className={cn(`w-full max-w-md border-none`, className)} {...props}>
+    <Card className={cn(`w-full max-w-md border-none`)}>
       <CardHeader>
         <CardTitle>
           <Heading>Login</Heading>
@@ -75,7 +75,7 @@ export default function LoginForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
-            <ErrorAlert error={error} />
+            <ErrorAlert error={state.errors?.server![0] ?? null} />
             <FormField
               control={form.control}
               name="email"
@@ -101,7 +101,12 @@ export default function LoginForm({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" autoComplete="current-password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,16 +134,16 @@ export default function LoginForm({
             />
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Logging in..." : "Login"}
             </Button>
             <div className="text-sm text-center">
               Don&apos;t have an account?{" "}
-              <LinkComp
+              <Link
                 href="/signup"
                 className="text-primary hover:underline font-bold">
                 Sign up
-              </LinkComp>
+              </Link>
             </div>
           </CardFooter>
         </form>

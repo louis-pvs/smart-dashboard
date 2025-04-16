@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import "@repo/ui/styles.css";
 
 const montserrat = localFont({

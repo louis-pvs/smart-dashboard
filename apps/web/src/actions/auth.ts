@@ -1,11 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { loginSchema, signupSchema } from "@repo/schema";
 import {
   createPersistentClient,
   createSessionClient,
 } from "@/lib/supabase/client";
+import { z } from "zod";
 
 export type AuthFormState = {
   errors?: {
@@ -19,71 +21,87 @@ export type AuthFormState = {
   success: boolean;
 };
 
+/**
+ * Handles form validation and returns formatted errors
+ */
+function validateForm<T extends z.ZodType>(
+  schema: T,
+  data: Record<string, unknown>
+):
+  | { success: true; data: z.infer<T> }
+  | { success: false; errors: AuthFormState["errors"] } {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    return {
+      success: false,
+      errors: { ...result.error.flatten().fieldErrors, server: [] },
+    };
+  }
+
+  return { success: true, data: result.data };
+}
+
+/**
+ * Sets auth error in a cookie for retrieval after redirect
+ */
+async function setAuthErrorCookie(errorState: AuthFormState): Promise<void> {
+  const cookiesStore = await cookies();
+  cookiesStore.set('authError', JSON.stringify(errorState), {
+    maxAge: 30, // Short-lived cookie
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
+}
+
 export async function login(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  let redirectPath;
+  // Extract and validate form data
+  const formValues = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    stayLogin: formData.get("stayLogin") === "true",
+  };
 
-  // Extract form data
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const stayLogin = formData.get("stayLogin") === "true";
-
-  // Validate with Zod
-  const validatedFields = loginSchema.safeParse({
-    email,
-    password,
-    stayLogin,
-  });
-
-  if (!validatedFields.success) {
-    return {
-      errors: { ...validatedFields.error.flatten().fieldErrors, server: [] },
-      success: false,
-    };
+  const validation = validateForm(loginSchema, formValues);
+  if (!validation.success) {
+    // For client-side validation errors, return directly
+    return { errors: validation.errors, success: false };
   }
 
   try {
-    // Use persistent session if user wants to stay logged in
-    const supabase = stayLogin
+    // Select client based on persistence preference
+    const supabase = validation.data.stayLogin
       ? createPersistentClient()
       : createSessionClient();
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: validation.data.email,
+      password: validation.data.password,
     });
 
     if (error) throw new Error(error.message);
 
-    // Redirect on success
-    redirectPath = "/overview";
+    // Redirect on success - this will terminate the function
+    redirect("/overview");
   } catch (err) {
-    if (err instanceof Error) {
-      return {
-        ...prevState,
-        errors: {
-          ...prevState.errors,
-          server: [err.message],
-        },
-        success: false,
-      };
-    }
-    return {
-      ...prevState,
+    const errorState = {
       errors: {
         ...prevState.errors,
-        server: ["An unexpected error occurred"],
+        server: [err instanceof Error ? err.message : "Authentication failed"]
       },
-      success: false,
+      success: false
     };
-  } finally {
-    if (redirectPath) redirect(redirectPath);
-    return {
-      ...prevState,
-      success: true,
-    }
+
+    // Store error in cookie before redirect
+    setAuthErrorCookie(errorState);
+
+    // Redirect back to login page
+    redirect("/login");
   }
 }
 
@@ -91,91 +109,68 @@ export async function signup(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  let redirectPath;
+  // Extract and validate form data
+  const formValues = {
+    name: formData.get("name") as string,
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    confirmPassword: formData.get("confirmPassword") as string,
+  };
 
-  // Extract form data
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  // Validate with Zod
-  const validatedFields = signupSchema.safeParse({
-    name,
-    email,
-    password,
-    confirmPassword,
-  });
-
-  if (!validatedFields.success) {
-    return {
-      errors: { ...validatedFields.error.flatten().fieldErrors, server: [] },
-      success: false,
-    };
+  const validation = validateForm(signupSchema, formValues);
+  if (!validation.success) {
+    return { errors: validation.errors, success: false };
   }
 
-  try {
-    const supabase = createPersistentClient();
+  const { name, email, password } = validation.data;
+  const supabase = createPersistentClient();
 
-    // Create the user in Supabase Auth
+  try {
+    // Transaction-like pattern for signup flow
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: name,
-        },
+        data: { full_name: name },
       },
     });
 
     if (authError) throw new Error(authError.message);
+    if (!authData.user) throw new Error("Failed to create user account");
 
-    // Check if email confirmation is required
-    if (authData.user && !authData.user.confirmed_at) {
-      redirectPath = "/verify-email";
+    // Email verification flow
+    if (!authData.user.confirmed_at) {
+      redirect("/verify-email");
     }
 
-    // If no email confirmation is required, create a user profile
-    if (authData.user) {
-      // Create user profile in the profiles table
-      const { error: profileError } = await supabase.from("users").insert({
-        id: authData.user.id,
-        name: name,
-        email: email,
-        role: "DEVELOPER", // Default role
-      });
+    // Create user profile
+    const { error: profileError } = await supabase.from("users").insert({
+      id: authData.user.id,
+      name,
+      email,
+      role: "DEVELOPER", // Default role
+    });
 
-      if (profileError) {
-        // We still continue as the auth user was created successfully
-        redirectPath = "/overview";
-        throw new Error("Error creating user profile,", profileError);
-      }
+    if (profileError) {
+      console.error("Error creating user profile:", profileError);
+      throw new Error("Failed to create user profile");
     }
-    throw new Error("Error creating user profile, unable to locate user's profile");
+
+    // Redirect to overview - this will terminate the function
+    redirect("/overview");
   } catch (err) {
-    if (err instanceof Error) {
-      return {
-        ...prevState,
-        errors: {
-          ...prevState.errors,
-          server: [err.message],
-        },
-        success: false,
-      };
-    }
-    return {
-      ...prevState,
+    const errorState = {
       errors: {
         ...prevState.errors,
-        server: ["An unexpected error occurred"],
+        server: [err instanceof Error ? err.message : "Signup failed"]
       },
-      success: false,
+      success: false
     };
-  } finally {
-    if (redirectPath) redirect (redirectPath);
-    return {
-      ...prevState,
-      success: true,
-    }
+
+    // Store error in cookie before redirect
+    setAuthErrorCookie(errorState);
+
+    // Redirect back to signup page
+    redirect("/signup");
   }
 }
